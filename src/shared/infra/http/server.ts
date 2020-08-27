@@ -1,3 +1,4 @@
+import 'reflect-metadata'; // Use decorator syntax
 import express from 'express';
 
 import routes from './routes';
