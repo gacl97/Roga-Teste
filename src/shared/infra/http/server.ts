@@ -1,9 +1,15 @@
 import 'reflect-metadata'; // Use decorator syntax
 import express, { Request, Response, NextFunction } from 'express';
+import 'express-async-errors';
 
 import AppError from '../../errors/AppError';
 
 import routes from './routes';
+
+// Injection dependencies
+import '@shared/container';
+// Conection with DB
+import '@shared/infra/typeorm';
 
 const app = express();
 
