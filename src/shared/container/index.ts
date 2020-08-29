@@ -1,5 +1,7 @@
 import { container } from 'tsyringe';
 
+import '@shared/container/providers';
+
 import ReportRepository from '@modules/reports/infra/typeorm/repositories/ReportRepository';
 import IReportRepository from '@modules/reports/repositories/IReportRepository';
 
