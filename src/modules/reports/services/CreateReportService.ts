@@ -1,12 +1,15 @@
 import { inject, injectable } from 'tsyringe';
 import axios from 'axios';
 
+import AppError from '@shared/errors/AppError';
+
 import IResquestDTO from '@modules/reports/dtos/IResquestDTO';
 import IResponseDTO from '@modules/reports/dtos/IResponseDTO';
 
 import IWhistleblowerRepository from '@modules/whistleblower/repositories/IWhistleblowerRepository';
-import AppError from '@shared/errors/AppError';
 import IAddressRepository from '@modules/addresses/repositories/IAddressRepository';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
+import Address from '@modules/addresses/infra/typeorm/entities/Address';
 import IReportRepository from '../repositories/IReportRepository';
 
 @injectable()
@@ -20,6 +23,9 @@ class CreateReportService {
 
     @inject('AddressRepository')
     private addressRepository: IAddressRepository,
+
+    @inject('RedisCacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -39,33 +45,31 @@ class CreateReportService {
       });
     }
 
-    const response = await axios.get(
-      `http://www.mapquestapi.com/geocoding/v1/reverse?key=CnjDjaUTQlMEVg8tyfi044RX6R6Mp2BP&location=${latitude},${longitude}&outFormat=json&thumbMaps=false`,
+    let addressExists = await this.cacheProvider.recover<Address>(
+      `${latitude}:${longitude}`,
     );
 
-    const [locations] = response.data.results;
-
-    const [address] = locations.locations;
-    const {
-      street,
-      adminArea5: city,
-      adminArea3: state,
-      postalCode: zipcode,
-      adminArea6: neighborhood,
-      adminArea1: country,
-    } = address;
-
-    if (!street) {
-      throw new AppError('Address not found for that location.', 404);
-    }
-
-    let addressExists = await this.addressRepository.findByCityStateAndStreet({
-      city,
-      state,
-      street,
-    });
-
     if (!addressExists) {
+      const response = await axios.get(
+        `http://www.mapquestapi.com/geocoding/v1/reverse?key=CnjDjaUTQlMEVg8tyfi044RX6R6Mp2BP&location=${latitude},${longitude}&outFormat=json&thumbMaps=false`,
+      );
+
+      const [locations] = response.data.results;
+
+      const [address] = locations.locations;
+      const {
+        street,
+        adminArea5: city,
+        adminArea3: state,
+        postalCode: zipcode,
+        adminArea6: neighborhood,
+        adminArea1: country,
+      } = address;
+
+      if (!street) {
+        throw new AppError('Address not found for that location.', 404);
+      }
+
       addressExists = await this.addressRepository.create({
         city,
         country,
@@ -76,8 +80,16 @@ class CreateReportService {
         street,
         zipcode,
       });
-    }
 
+      await this.cacheProvider.save(`${latitude}:${longitude}`, {
+        id: addressExists.id,
+        street,
+        state,
+        zipcode,
+        neighborhood,
+        country,
+      });
+    }
     const createdReport = await this.reportRepository.create({
       description: report.description,
       title: report.title,

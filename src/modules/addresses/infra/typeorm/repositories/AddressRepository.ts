@@ -2,7 +2,7 @@ import { getRepository, Repository } from 'typeorm';
 import IAddressRepository from '@modules/addresses/repositories/IAddressRepository';
 
 import ICreateAddressDTO from '@modules/addresses/dtos/ICreateAddressDTO';
-import IFindAddressByCityStateAndStreetDTO from '@modules/addresses/dtos/IFindAddressByCityStateAndStreetDTO';
+import IFindByLatitudeAndLongitudeDTO from '@modules/addresses/dtos/IFindByLatitudeAndLongitudeDTO';
 
 import Address from '../entities/Address';
 
@@ -39,16 +39,14 @@ class AddressRepository implements IAddressRepository {
     return address;
   }
 
-  public async findByCityStateAndStreet({
-    city,
-    street,
-    state,
-  }: IFindAddressByCityStateAndStreetDTO): Promise<Address | undefined> {
+  public async findByLatitudeAndLongitude({
+    latitude,
+    longitude,
+  }: IFindByLatitudeAndLongitudeDTO): Promise<Address | undefined> {
     const address = await this.ormRepository.findOne({
       where: {
-        city,
-        street,
-        state,
+        latitude,
+        longitude,
       },
     });
 
