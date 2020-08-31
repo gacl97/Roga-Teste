@@ -25,7 +25,7 @@
 - **Prettier**
 - **Jest**
 
-Utilização do padrão Data Mapper Pattern em que se separa melhor as responsabilidades da aplicação, com isso focando nos princípios SOLID. Dentro os princípios que foram utilizados:
+Utilização do padrão Data Mapper Pattern em que se separa melhor as responsabilidades da aplicação, com isso focando nos princípios SOLID. Dentre os princípios, os que foram utilizados:
 
 - **(Separation of Concerns)** Separação das responsabilidades entre cada arquivo.
 - **(Don't Repeat Yourself)** Reaproveitamento de código com os Services.
@@ -58,7 +58,7 @@ Com as depêndencias baixadas, agora como configurar o banco de dados:
 
 Caso possua docker instalado na máquina:
 
-    docker run --name roga-teste-postgres -e POSTGRES_USER=docker -e POSTGRES_PASSWORD=docker -e POSTGRES_DB=roga_database -p 5432:5432 -d postgres
+    docker run --name roga-teste-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=docker -e POSTGRES_DB=roga_database -p 5432:5432 -d postgres
 
 Com isso já irá criar o container e o banco de dados que irá ser utilizado no projeto. 
 
