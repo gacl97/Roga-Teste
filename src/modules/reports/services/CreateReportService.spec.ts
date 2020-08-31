@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import FakeWhistleblowerRepository from '@modules/whistleblower/repositories/fakes/FakeWhistleblowerRepository';
 import FakeAddressRepository from '@modules/addresses/repositories/fakes/FakeAddressRepository';
 import AppError from '@shared/errors/AppError';
@@ -13,9 +11,6 @@ let fakeWhistleblowerRepository: FakeWhistleblowerRepository;
 let fakeAddressRepository: FakeAddressRepository;
 let fakeCacheProvider: FakeCacheProvider;
 let createReport: CreateReportService;
-
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('CreateReport', () => {
   beforeEach(() => {
@@ -32,11 +27,8 @@ describe('CreateReport', () => {
     );
   });
 
-  it('should be able to create a new report', async () => {
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      `http://www.mapquestapi.com/geocoding/v1/reverse?key=CnjDjaUTQlMEVg8tyfi044RX6R6Mp2BP&location=-20.499751-43.861278&outFormat=json&thumbMaps=false`,
-    );
-    const report = await createReport.execute({
+  it('should be able to create an new report', async () => {
+    const response = await createReport.execute({
       latitude: -20.499751,
       longitude: -43.861278,
       report: {
@@ -49,13 +41,76 @@ describe('CreateReport', () => {
       },
     });
 
-    expect(report).toHaveProperty('id');
+    expect(response.report).toHaveProperty('id');
   });
 
-  it('should not be able to create a report with invalid address', async () => {
-    const report = await createReport.execute({
-      latitude: -221313.499751,
-      longitude: -4321313.861278,
+  it('should be able to create an address', async () => {
+    const address = await fakeAddressRepository.create({
+      street: 'Rua Dom Silverio',
+      state: 'Minas Gerais',
+      zipcode: '12345-123',
+      neighborhood: 'Matriz',
+      city: 'Congonhas',
+      country: 'BR',
+      latitude: -20.499751,
+      longitude: -43.861278,
+    });
+
+    expect(address).toHaveProperty('id');
+  });
+
+  it('should be able to create an whistleblower', async () => {
+    const whistleblower = await fakeWhistleblowerRepository.create({
+      cpf: '11111111111',
+      name: 'Gustavo',
+    });
+
+    expect(whistleblower).toHaveProperty('id');
+  });
+
+  it('should not be able to create an report with invalid address', async () => {
+    await expect(
+      createReport.execute({
+        latitude: -23.499751,
+        longitude: -43.861278,
+        report: {
+          description: 'descricao',
+          title: 'title',
+        },
+        whistleblower: {
+          cpf: '11111111111',
+          name: 'name',
+        },
+      }),
+    ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it('should not be able to create an report with invalid latitude and longitude', async () => {
+    await expect(
+      createReport.execute({
+        latitude: -2312312.499751,
+        longitude: -433131.861278,
+        report: {
+          description: 'descricao',
+          title: 'title',
+        },
+        whistleblower: {
+          cpf: '11111111111',
+          name: 'name',
+        },
+      }),
+    ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it('should not be able to create an whistleblower if already exists', async () => {
+    const whistleblower = await fakeWhistleblowerRepository.create({
+      cpf: '11111111111',
+      name: 'Gustavo',
+    });
+
+    await createReport.execute({
+      latitude: -20.499751,
+      longitude: -43.861278,
       report: {
         description: 'descricao',
         title: 'title',
@@ -66,6 +121,48 @@ describe('CreateReport', () => {
       },
     });
 
-    await expect(report).rejects.toBeInstanceOf(AppError);
+    await expect(
+      fakeWhistleblowerRepository.findByCpf('11111111111'),
+    ).resolves.toEqual(whistleblower);
+  });
+
+  it('should not be able to create a address if already exists', async () => {
+    const latitude = -20.499751;
+    const longitude = -43.861278;
+
+    await fakeCacheProvider.save(`${latitude}:${longitude}`, {
+      id: '1',
+      street: 'Rua Dom Silverio',
+      state: 'Minas Gerais',
+      zipcode: '12345-123',
+      neighborhood: 'Matriz',
+      city: 'Congonhas',
+      country: 'BR',
+    });
+
+    await createReport.execute({
+      latitude: -20.499751,
+      longitude: -43.861278,
+      report: {
+        description: 'descricao',
+        title: 'title',
+      },
+      whistleblower: {
+        cpf: '11111111111',
+        name: 'name',
+      },
+    });
+
+    await expect(
+      fakeCacheProvider.recover(`${latitude}:${longitude}`),
+    ).resolves.toEqual({
+      id: '1',
+      street: 'Rua Dom Silverio',
+      state: 'Minas Gerais',
+      zipcode: '12345-123',
+      city: 'Congonhas',
+      neighborhood: 'Matriz',
+      country: 'BR',
+    });
   });
 });
