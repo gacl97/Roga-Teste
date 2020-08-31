@@ -9,6 +9,7 @@
   - [Funcionalidades](#funcionalidades)
   - [Cadastrando uma denúncia no projeto](#cadastrando-uma-denúncia-no-projeto)
   - [Listando denúncias cadastradas](#listando-denúncias-cadastradas)
+  - [Rodando testes](#testes)
 
 
 <a id="o-que-foi-utilizado"></a>
@@ -21,6 +22,9 @@
 - **TypeScript;**
 - **Redis para cache**;
 - **Postgres**
+- **Eslint**
+- **Prettier**
+- **Jest**
 
 Utilização do padrão Data Mapper Pattern em que se separa melhor as responsabilidades da aplicação, com isso focando nos princípios SOLID. Dentro os princípios que foram utilizados:
 
@@ -138,3 +142,12 @@ Método POST.
 Para listar utilizar método GET com a rota:
 
     http://localhost:3333/report
+***
+
+<a id="testes"></a>
+
+## Testes
+
+Para rodar os testes unitários:
+
+    yarn test
