@@ -15,7 +15,6 @@
 <a id="o-que-foi-utilizado"></a>
 
 ## O que foi utilizado
-***
 
 - **Node**;
 - **Express**;
@@ -36,7 +35,6 @@ Utilização do padrão Data Mapper Pattern em que se separa melhor as responsab
 <a id="instructions"></a>
 
 ## Instruções para baixar e configurar o projeto
-***
 
 Primeiramente clonar o repositório:
 
