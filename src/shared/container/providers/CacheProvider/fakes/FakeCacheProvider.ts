@@ -5,17 +5,17 @@ interface ICacheData {
 }
 
 class FakeCacheProvider implements ICacheProvider {
-  private cache: ICacheData;
+  private cache: ICacheData = {};
 
   public async save(key: string, value: any): Promise<void> {
     this.cache[key] = JSON.stringify(value);
   }
 
-  public async recover<T>(key: string): Promise<T | undefined> {
+  public async recover<T>(key: string): Promise<T | null> {
     const data = this.cache[key];
 
     if (!data) {
-      return undefined;
+      return null;
     }
     const parsedData = JSON.parse(data) as T;
 

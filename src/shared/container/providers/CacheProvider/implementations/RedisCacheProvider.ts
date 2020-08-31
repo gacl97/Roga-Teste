@@ -14,11 +14,11 @@ class RedisCacheProvider implements ICacheProvider {
     this.client.set(key, JSON.stringify(value));
   }
 
-  public async recover<T>(key: string): Promise<T | undefined> {
+  public async recover<T>(key: string): Promise<T | null> {
     const data = await this.client.get(key);
 
     if (!data) {
-      return undefined;
+      return null;
     }
 
     const parsedData = JSON.parse(data) as T;
