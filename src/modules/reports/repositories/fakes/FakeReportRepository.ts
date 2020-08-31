@@ -29,6 +29,12 @@ class FakeReportRepository implements IReportRepository {
 
     return report;
   }
+
+  public async findAllReports(): Promise<Report[]> {
+    const { reports } = this;
+
+    return reports;
+  }
 }
 
 export default FakeReportRepository;

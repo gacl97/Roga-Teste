@@ -7,5 +7,6 @@ const reportController = new ReportController();
 const reportsRoutes = Router();
 
 reportsRoutes.post('/', reportController.create);
+reportsRoutes.get('/', reportController.index);
 
 export default reportsRoutes;

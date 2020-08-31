@@ -30,6 +30,14 @@ class ReportRepository implements IReportRepository {
 
     return report;
   }
+
+  public async findAllReports(): Promise<Report[]> {
+    const reports = await this.ormRepository.find({
+      relations: ['whistleblower', 'address'],
+    });
+
+    return reports;
+  }
 }
 
 export default ReportRepository;

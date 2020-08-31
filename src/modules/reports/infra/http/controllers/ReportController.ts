@@ -4,6 +4,7 @@ import { container } from 'tsyringe';
 import { classToClass } from 'class-transformer';
 
 import CreateReportService from '@modules/reports/services/CreateReportService';
+import ListAllReportsService from '@modules/reports/services/ListAllReportsService';
 
 class ReportController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -30,6 +31,14 @@ class ReportController {
     });
 
     return response.json(classToClass(reportResponse));
+  }
+
+  public async index(request: Request, response: Response): Promise<Response> {
+    const listReports = container.resolve(ListAllReportsService);
+
+    const reports = await listReports.execute();
+
+    return response.json(reports);
   }
 }
 
