@@ -54,9 +54,14 @@ class CreateReportService {
         `http://www.mapquestapi.com/geocoding/v1/reverse?key=CnjDjaUTQlMEVg8tyfi044RX6R6Mp2BP&location=${latitude},${longitude}&outFormat=json&thumbMaps=false`,
       );
 
-      const [locations] = response.data.results;
+      const [location] = response.data.results;
 
-      const [address] = locations.locations;
+      const [address] = location.locations;
+
+      if (!address) {
+        throw new AppError('Latitude or longitude is wrong.', 404);
+      }
+
       const {
         street,
         adminArea5: city,
